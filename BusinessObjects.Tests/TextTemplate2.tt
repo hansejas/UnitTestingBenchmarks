@@ -1,0 +1,73 @@
+﻿<#@ include file="SaveOutput.tt" #>
+<#
+    GenerateSingleStateTests(5000, "Bar", 500000);
+    SaveOutputToFile("BarTests.txt");  
+
+    GenerateSingleStateTests(5000, "Foo", 500000);
+    SaveOutputToFile("FooTests.txt");
+
+    GenerateMultiStateTests(1000,10, 500000);
+    SaveOutputToFile("MultiTests.txt");
+
+#>
+
+
+<#+
+
+    void GenerateMultiStateTests(int count, int statesPerTestMethod, int falseDivisor)
+    {
+        for(int i = 0; i< count; i++)
+        {
+#>
+[TestMethod]
+public void MultiStateTest<#= i.ToString()#>()
+{
+    List<int> ints = new List<int>();
+
+    for (int i = 0; i < <#= statesPerTestMethod#>; i++)
+    {
+        ints.Add(i);
+    }
+
+    foreach (int i in ints)
+    {
+    <#+ if(i%falseDivisor != 0) 
+        {
+    #>  Assert.IsTrue(true);
+    <#+
+        }
+        else
+        {
+    #> Assert.IsTrue(false);
+    <#+     }#>
+    }
+}
+<#+
+        }
+    }
+#>
+
+<#+
+
+    void GenerateSingleStateTests(int count, string baseName, int falseDivisor)
+    {
+        for(int i = 0; i< count; i++)
+        {
+#>
+[TestMethod]
+public void SingleState_<#= baseName#>Test<#= i.ToString()#>_IsTrue()
+{
+    <#+ if(i%falseDivisor != 0) 
+        {
+    #>  Assert.IsTrue(true);
+    <#+
+        }
+        else
+        {
+    #> Assert.IsTrue(false);
+<#+     }#>
+}
+<#+
+        }
+    }
+#>
